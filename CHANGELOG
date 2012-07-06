@@ -5,6 +5,7 @@ CHANGELOG Roundcube Webmail
 - Backported session fixes:
   Accept two past time slots for auth cookie validation; don't use user-agent for auth hash (#1488449)
   Better handling of HTTP request errors; re-send keep-alive requests on failure (#1488449)
+  Fix 'no connection' errors on page unloads (#1488547)
 
 RELEASE 0.7.3
 -------------
