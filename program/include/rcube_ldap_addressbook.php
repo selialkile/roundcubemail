@@ -2,7 +2,7 @@
 
 /*
  +-----------------------------------------------------------------------+
- | program/include/rcube_ldap.php                                        |
+ | program/include/rcube_ldap_addressbook.php                            |
  |                                                                       |
  | This file is part of the Roundcube Webmail client                     |
  | Copyright (C) 2006-2012, The Roundcube Dev Team                       |
