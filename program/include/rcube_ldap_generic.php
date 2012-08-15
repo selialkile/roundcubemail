@@ -27,6 +27,8 @@
   --------------------------
 
   $prop = array(
+      'host'          => '<ldap-server-address>',
+      // or
       'hosts'         => array('directory.verisign.com'),
       'port'          => 389,
       'use_tls'	      => true|false,
@@ -70,8 +72,8 @@ class rcube_ldap_generic
     /**
     * Object constructor
     *
-    * @param array 	 $p            LDAP connection properties
-    * @param boolean $debug        Enables debug mode
+    * @param array   $p       LDAP connection properties
+    * @param boolean $debug   Enables debug mode
     */
     function __construct($p, $debug = false)
     {
@@ -79,6 +81,9 @@ class rcube_ldap_generic
 
         if (is_array($p['attributes']))
             $this->attributes = $p['attributes'];
+
+        if (!is_array($p['hosts']) && !empty($p['host']))
+            $this->config['hosts'] = array($p['host']);
 
         $this->debug = $debug;
     }
@@ -96,8 +101,8 @@ class rcube_ldap_generic
     /**
      * Set connection options
      *
-     * @param mixed Option name as string or hash array with multiple options
-     * @param mixed Option value
+     * @param mixed $opt Option name as string or hash array with multiple options
+     * @param mixed $val Option value
      */
     public function set_config($opt, $val = null)
     {
@@ -111,10 +116,10 @@ class rcube_ldap_generic
     /**
      * Set properties for VLV-based paging
      *
-     * @param  number  Page number to list (starting at 1)
-     * @param  number  Number of messages to display on one page
+     * @param  number $page  Page number to list (starting at 1)
+     * @param  number $size  Number of entries to display on one page
      */
-    public function set_page($page, $size = 10)
+    public function set_vlv_page($page, $size = 10)
     {
         $this->list_page = $page;
         $this->page_size = $size;
@@ -221,8 +226,8 @@ class rcube_ldap_generic
     /**
      * Bind connection with DN and password
      *
-     * @param string Bind DN
-     * @param string Bind password
+     * @param string $dn   Bind DN
+     * @param string $pass Bind password
      *
      * @return boolean True on success, False on error
      */
@@ -273,8 +278,8 @@ class rcube_ldap_generic
     /**
      * Get a specific LDAP entry, identified by its DN
      *
-     * @param string  Record identifier
-     * @return array  Hash array
+     * @param string $dn Record identifier
+     * @return array     Hash array
      */
     function get_entry($dn)
     {
@@ -306,11 +311,11 @@ class rcube_ldap_generic
     /**
      * Execute the LDAP search based on the stored credentials
      *
-     * @param string The base DN to query
-     * @param string The LDAP filter for search
-     * @param string The LDAP scope (list|sub|base)
-     * @param boolean True if only the record count is requested
-     * @param string The search string to be used for VLV-based searching
+     * @param string $base_dn  The base DN to query
+     * @param string $filter   The LDAP filter for search
+     * @param string $scope    The LDAP scope (list|sub|base)
+     * @param boolean $count_only  True if only the record count is requested
+     * @param string  $vlv_search  The search string to be used for VLV-based searching
      *
      * @return mixed  rcube_ldap_result object or number of entries (if count_only=true) or false on error
      */
@@ -373,9 +378,9 @@ class rcube_ldap_generic
     /**
      * Modify an LDAP entry on the server
      *
-     * @param string Entry DN
-     * @param array Hash array of entry attributes
-     * @param int   Update mode (UPDATE_MOD_ADD | UPDATE_MOD_DELETE | UPDATE_MOD_REPLACE)
+     * @param string $dn      Entry DN
+     * @param array  $params  Hash array of entry attributes
+     * @param int    $mode    Update mode (UPDATE_MOD_ADD | UPDATE_MOD_DELETE | UPDATE_MOD_REPLACE)
      */
     public function modify($dn, $parms, $mode = 255)
     {
@@ -386,6 +391,8 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_add()
+     *
+     * @see ldap_add()
      */
     public function add($dn, $entry)
     {
@@ -403,6 +410,8 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_delete()
+     *
+     * @see ldap_delete()
      */
     public function delete($dn)
     {
@@ -420,6 +429,8 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_mod_replace()
+     *
+     * @see ldap_mod_replace()
      */
     public function mod_replace($dn, $entry)
     {
@@ -436,6 +447,8 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_mod_add()
+     *
+     * @see ldap_mod_add()
      */
     public function mod_add($dn, $entry)
     {
@@ -452,6 +465,8 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_mod_del()
+     *
+     * @see ldap_mod_del()
      */
     public function mod_del($dn, $entry)
     {
@@ -468,6 +483,8 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_rename()
+     *
+     * @see ldap_rename()
      */
     public function rename($dn, $newrdn, $newparent = null, $deleteoldrdn = true)
     {
@@ -484,6 +501,9 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_list() + ldap_get_entries()
+     *
+     * @see ldap_list()
+     * @see ldap_get_entries()
      */
     public function list_entries($dn, $filter, $attributes = array(''))
     {
@@ -512,6 +532,9 @@ class rcube_ldap_generic
 
     /**
      * Wrapper for ldap_read() + ldap_get_entries()
+     *
+     * @see ldap_read()
+     * @see ldap_get_entries()
      */
     public function read_entries($dn, $filter, $attributes = null)
     {
@@ -537,6 +560,10 @@ class rcube_ldap_generic
 
     /**
      * Choose the right PHP function according to scope property
+     *
+     * @param string $scope         The LDAP scope (sub|base|list)
+     * @param string $ns_function   Function to be used for numSubOrdinates queries
+     * @return string  PHP function to be used to query directory
      */
     public static function scope2func($scope, &$ns_function = null)
     {
@@ -559,7 +586,7 @@ class rcube_ldap_generic
     /**
      * Escapes the given value according to RFC 2254 so that it can be safely used in LDAP filters.
      *
-     * @param string Value to quote
+     * @param string $val Value to quote
      * @return string The escaped value
      */
     public static function escape_value($val)
@@ -571,7 +598,7 @@ class rcube_ldap_generic
     /**
      * Escapes a DN value according to RFC 2253
      *
-     * @param string DN value o quote
+     * @param string $dn DN value o quote
      * @return string The escaped value
      */
     public static function escape_dn($dn)
@@ -579,6 +606,25 @@ class rcube_ldap_generic
         return strtr($str, array(','=>'\2c', '='=>'\3d', '+'=>'\2b',
             '<'=>'\3c', '>'=>'\3e', ';'=>'\3b', '\\'=>'\5c',
             '"'=>'\22', '#'=>'\23'));
+    }
+
+    /**
+     * Turn an LDAP entry into a regular PHP array with attributes as keys.
+     *
+     * @param array $entry Attributes array as retrieved from ldap_get_attributes() or ldap_get_entries()
+     * @return array       Hash array with attributes as keys
+     */
+    public static function normalize_entry($entry)
+    {
+        $rec = array();
+        for ($i=0; $i < $entry['count']; $i++) {
+            $attr = $entry[$i];
+            for ($j=0; $j < $entry[$attr]['count']; $j++) {
+                $rec[$attr][$j] = $entry[$attr][$j];
+            }
+        }
+
+        return $rec;
     }
 
     /**

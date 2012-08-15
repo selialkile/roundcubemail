@@ -343,18 +343,18 @@ class rcube_ldap_addressbook extends rcube_addressbook
     function set_page($page)
     {
         $this->list_page = (int)$page;
-        $this->ldap->set_page($this->list_page, $this->page_size);
+        $this->ldap->set_vlv_page($this->list_page, $this->page_size);
     }
 
     /**
      * Set internal page size
      *
-     * @param  number  Number of messages to display on one page
+     * @param  number  Number of records to display on one page
      */
     function set_pagesize($size)
     {
         $this->page_size = (int)$size;
-        $this->ldap->set_page($this->list_page, $this->page_size);
+        $this->ldap->set_vlv_page($this->list_page, $this->page_size);
     }
 
 
@@ -1457,7 +1457,7 @@ class rcube_ldap_addressbook extends rcube_addressbook
 
             $ldap = clone $this->ldap;
             $ldap->set_config($this->prop['groups']);
-            $ldap->set_page($vlv_page+1, $page_size);
+            $ldap->set_vlv_page($vlv_page+1, $page_size);
         }
 
         $ldap_data = $ldap->search($base_dn, $filter, array_unique(array('dn', 'objectClass', $name_attr, $email_attr, $sort_attr)));
