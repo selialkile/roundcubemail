@@ -7,6 +7,8 @@ CHANGELOG Roundcube Webmail
   Better handling of HTTP request errors; re-send keep-alive requests on failure (#1488449)
   Fix 'no connection' errors on page unloads (#1488547)
   Fix more IE issues by disabling Compat. mode with X-UA-Compatible meta tag (#1488626)
+  Fix (workaround) delete operations with some versions of memcache (#1488592)
+  Reset IP stored in session when destroying session data (#1488056)
 
 RELEASE 0.7.3
 -------------
