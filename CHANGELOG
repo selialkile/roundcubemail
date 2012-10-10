@@ -2,10 +2,11 @@ CHANGELOG Roundcube Webmail
 ===========================
 
 - Fix so subscribed non-existing/non-accessible shared folder can be unsubscribed
-- Backported session fixes:
+- Backported session-related fixes:
   Accept two past time slots for auth cookie validation; don't use user-agent for auth hash (#1488449)
   Better handling of HTTP request errors; re-send keep-alive requests on failure (#1488449)
   Fix 'no connection' errors on page unloads (#1488547)
+  Fix more IE issues by disabling Compat. mode with X-UA-Compatible meta tag (#1488626)
 
 RELEASE 0.7.3
 -------------
