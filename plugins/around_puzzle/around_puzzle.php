@@ -18,30 +18,20 @@ class around_puzzle extends rcube_plugin
   {
 
     $this->rc = rcmail::get_instance();
+    $this->rc->storage_connect();
     $this->register_task('around_puzzle');
     // register actions
-    $this->register_action('around_puzzle', array($this, 'index'));
+    $this->register_action('index', array($this, 'index'));
     $this->register_action('mailbox_list', array($this, 'mailbox_list'));
-    $this->register_action('preview', array($this, 'preview'));
 
     $this->add_hook('render_response', array($this, 'render_response'));
   }
 
   function index()
   {
-    //$this->rc->output->send('around_puzzle.index');
-    $this->to_render = array("testando" => "funciona!");
-  }
-
-  function preview(){
-    $RCMAIL = $this->rc;
-    $RCMAIL->storage_connect();
-    $mbox       = rcube_utils::get_input_value('mbox', rcube_utils::INPUT_GET);
-    $uid       = rcube_utils::get_input_value('_uid', rcube_utils::INPUT_GET);
-    $RCMAIL->storage->set_folder('INBOX');
-    $MESSAGE = new rcube_message($uid);
-
-    $this->to_render = $MESSAGE;
+    $this->include_script('js/mailbox_list.js');
+    $this->rc->output->send('around_puzzle.index');
+    // $this->to_render = array("testando" => "funciona!");
   }
 
   function mailbox_list()
